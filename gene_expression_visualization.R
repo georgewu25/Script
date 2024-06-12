@@ -55,67 +55,6 @@ for (i in 1:10) {
 
 
 
-#Heat map
-library(tidyr)
-library(dplyr)
-library(pheatmap)
-library(ComplexHeatmap)
-library(RColorBrewer)
-
-#Takes comparison files number, plot height and plot width
-make_heatmap <- function(files, height, width) {
-  gene_df_all <- data.frame()
-  gene_df_temp <- data.frame()
-  gene_df_comp <- data.frame()
-  for (i in files) {
-  comparison <- deseq2_conf_list[i]
-  dir <- paste0(deseq2_root, comparison)
-  subdir <- list.dirs(dir)[2]
-  df <- read.csv(paste0(subdir, "/", "Results_GTFAnnotated_NoGeneIDDuplicates.csv"))
-  df[, 34] <- comparison
-  colnames(df)[34] <- "Comparison"
-  
-  #Contains genes from all the comparisons
-  gene_df_all <- rbind(gene_df_all, df)
-  colnames(gene_df_all)[34] <- "Comparison"
-  
-  # Top 5 genes with logFC in both directions in each comparison
-  df_sorted <- df[order(df$log2FoldChange), ]
-  top_genes <- rbind(head(df_sorted, 5), tail(df_sorted, 5))
-  
-  #Get genes that are in all comparisons
-  gene_df_comp <- rbind(gene_df_comp, gene_df_all[gene_df_all$Comparison %in% deseq2_conf_list[files] & gene_df_all$gene_name %in% top_genes$gene_name, ])
-
-} #End making gene_df_comp for all comparisons
-  
-  #Extract columns: Log2FC, Gene_name, and Comparison
-  temp <- gene_df_comp[, c(3, 19, 34)]
-  
-  #Remove duplicated rows for each comparison, which are fine to remove since they are potential repeated genes obtained when making the gene_df_comp
-  distinct_df <- temp %>% distinct(gene_name, Comparison, .keep_all = TRUE)
-  
-  #Transform data
-  pivoted_df <- pivot_wider(distinct_df, names_from = Comparison, values_from = log2FoldChange)
-
-  #Replace missing values with zeros
-  pivoted_df[is.na(pivoted_df)] <- 0
-  
-  #Transform into matrix
-  df_matrix <- as.matrix(pivoted_df[, -1])
-  
-  #Assign row names and col names
-  rownames(df_matrix) <- pivoted_df$gene_name
-  colnames(df_matrix) <- c("33 vs 44 24hr", "33 vs 44 48hr")
-
-  #Make heatmap
-  coul <- colorRampPalette(brewer.pal(8, "PiYG"))(25)
-                                                  
-  ComplexHeatmap::pheatmap(df_matrix, cluster_cols = FALSE, cluster_rows = FALSE, color = hcl.colors(50, "BluYl"), heatmap_legend_param = list(title = "log2FC"), angle_col = "315", cellheight=height, cellwidth = width)
-}
-
-make_heatmap(c(3,4), 12, 25)
-
-
 #PCA
 library(tidyverse)
 #BiocManager::install("ggfortify")
