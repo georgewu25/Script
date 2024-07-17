@@ -470,6 +470,37 @@ for (i in 1:length(unique(res_enr_copy$query))) {
   ggsave(paste0(outdir, unique(res_enr_copy$query)[i], "_Emma.pdf"), height = 10, width = 20)
 }
 
+#Module-Pathway Enrichment
+module_pathway_list <- list(blue, brown, green, magenta, pink, red, salmon, turquoise, yellow)
+colors <- list('blue', 'brown', 'green', 'magenta', 'pink', 'red', 'salmon', 'turquoise', 'yellow')
+
+module_pathway_df <- data.frame()
+for (i in 1:length(unique(res_enr_final$query.))) {
+  
+  df_subset <- res_enr_final[res_enr_final$query. == unique(res_enr_final$query.)[i] & res_enr_final$term %in% unlist(module_pathway_list[i]), ]
+  
+  module_pathway_df <- rbind(module_pathway_df, df_subset)
+}
+
+ggplot(module_pathway_df, aes(x=-log10(padj), y=term, fill=query.))+
+  geom_col() +
+  facet_grid(rows = vars(query.), scales = "free") +
+  scale_fill_manual(values = colors) +
+  geom_vline(xintercept = -log10(0.1), linetype = "solid", color = "red") + 
+  theme_minimal() +
+  theme(
+    axis.text.y = element_text(size = 10),
+    panel.margin = unit(.05, "lines"),
+    panel.border = element_blank(),
+    strip.text = element_blank(),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    axis.line = element_line(color = "black", linewidth = 0.2)
+  ) +
+  guides(fill = FALSE) +
+  scale_x_continuous(expand = c(0, 0), breaks = seq(0, max(-log10(module_pathway_df$padj)), by = 5)) +
+  labs(title = "", x = "-Log10(FDR)", y = "", fill = "")
+
 
 
 module_gene_df <- read.csv("/projectnb/tcwlab/LabMember/mwu/Project/Astrocyte_Ab/2X100/output/WGCNA/deepsplit2/module_genes.csv")
@@ -535,6 +566,32 @@ eigene_plot <- function(df, filename) {
 #Gene Expression level in module salmon
 eigene_plot(module_gene_df[module_gene_df$module == "salmon", ], "Salmon")
 
-eigene_plot(module_gene_df[module_gene_df$module == "red", ], "Red")
 
-eigene_plot(module_gene_df[module_gene_df$module == "brown", ], "Brown")
+#Hub Genes
+expression_df <- read.csv("/projectnb/tcwlab/LabMember/mwu/Project/Astrocyte_Ab/2X100/output/WGCNA/normalized_expression.csv")
+
+chooseTopHubInEachModule(expression_df[,-1], module_color)
+
+connectivity_allClusters <- intramodularConnectivity.fromExpr(expression_df[,-1], module_color, 
+                                                                     corFnc = "bicor", corOptions = "use = 'p'",
+                                                                     weights = NULL,
+                                                                     distFnc = "dist", distOptions = "method = 'euclidean'",
+                                                                     networkType = "signed", power = 9,
+                                                                     scaleByMax = FALSE,
+                                                                     ignoreColors = if (is.numeric(colors)) 0 else "grey",
+                                                                     getWholeNetworkConnectivity = TRUE)
+
+rownames(connectivity_allClusters) <- colnames(expression_df[,-1])
+connectivity_allClusters$module_color <- module_color
+connectivity_allClusters$gene <- row.names(connectivity_allClusters)
+connect <- connectivity_allClusters[order(connectivity_allClusters$module_color,-connectivity_allClusters$kWithin),]
+
+module_yellow <- connect[connect$module_color == "yellow", ]
+
+allClusters_kME <- signedKME(expression_df[,-1],ME,corFnc = "bicor")
+
+ggplot(module_yellow, aes(x = kWithin)) +
+  geom_histogram(fill = "lightblue") +
+  labs(title = "Gene Intramodular Connectivity Distribution in Epigenetic Module", x = "Connectivity", y = "Gene Count") +
+  theme_minimal()
+
