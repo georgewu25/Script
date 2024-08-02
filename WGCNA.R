@@ -1,13 +1,11 @@
 #!/bin/usr/Rscript
 
 #BiocManager::install("WGCNA")
-library(rlang, lib = "/projectnb/tcwlab/LabMember/mwu/R/")
 library("ggplot2") # For PCA plot
 library("WGCNA") # For network analysis
 library("DESeq2") # For data transformation
 #BiocManager::install("sva")
 library("sva") # For batch/covariate correction
-#install.packages('RColorBrewer', lib = "/projectnb/tcwlab/LabMember/mwu/R/")
 library("GSA") # To extract gene sets
 library("erer") # For list writing
 library("car") # For Levene's homogeneity test
@@ -232,8 +230,6 @@ empty_rows <- gene_symbol$gene_symbol == ""
 gene_symbol$gene_symbol[empty_rows] <- gene_symbol$gene_id[empty_rows]
 
 modules_df$gene_symbol <- gene_symbol$gene_symbol
-
-write.csv(modules_df, paste0(outdir, "module_genes.csv"), row.names = FALSE, quote = FALSE)
 
 
 plot_trait_heatmap <- function(eigen_gene, trait_data, expression_data, filename) {
@@ -503,16 +499,6 @@ ggplot(module_pathway_df, aes(x=-log10(padj), y=term, fill=query.))+
 
 
 
-module_gene_df <- read.csv("/projectnb/tcwlab/LabMember/mwu/Project/Astrocyte_Ab/2X100/output/WGCNA/deepsplit2/module_genes.csv")
-
-colnames(module_gene_df)
-
-#Plot eigengene expression levels between APOE33 and APOE44 over three time points
-library(tidyr)
-library(dplyr)
-library(ggplot2)
-library(ggpubr)
-
 #Takes module specific data
 eigene_plot <- function(df, filename) {
   df=module_gene_df[module_gene_df$module == "salmon", ]
@@ -594,4 +580,20 @@ ggplot(module_yellow, aes(x = kWithin)) +
   geom_histogram(fill = "lightblue") +
   labs(title = "Gene Intramodular Connectivity Distribution in Epigenetic Module", x = "Connectivity", y = "Gene Count") +
   theme_minimal()
+
+
+ggplot(common_pathways_df, aes(x = -log10(padj), y = term, fill = query.)) +
+  geom_col(position = position_dodge(width = 0.8)) +
+  scale_fill_manual(values = c("yellow" = "yellow", "red" = "red"), guide = guide_legend(reverse = TRUE)) +
+  geom_vline(xintercept = -log10(0.1), linetype = "solid", color = "red") +
+  theme_minimal() +
+  theme(
+    axis.text.y = element_text(size = 10),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    axis.line = element_line(color = "black", linewidth = 0.2)
+  ) +
+  scale_x_continuous(expand = c(0, 0), breaks = seq(0, max(-log10(common_pathways_df$padj)), by = 5)) +
+  labs(x = "-log10(FDR)", y = "", title = "Pathway Enrichment Between Two Epigenetic Modules", fill = "Module")
+
 
