@@ -15,18 +15,7 @@ my $USAGE= <<EOF;
 
 Usage: perl filename_map_apoe22.pl fq_orig_dir fq_new_dir
 
-It will 
-1) create the softlink for each fastq.gz file under 
-fq_orig_dir, using the name as {sample_id}_{norm_sample}_READ{1|2}.fastq.gz
-2) generate a sample_map.txt file contains all sample id 
-maps;
-3) report any erroreous fastq.gz that can\'t be softlinked and 
-put in sample_err.txt
-4) auto config the sample order according to Dr. TCW's suggestion,
-   generate a text file \'sample_list.txt\' to list all unique
-   sample id in the directory. If the user wants to order the samples in
-   particular custom order, please use another script, 
-        filename_map_apoe22_custom.pl
+
 EOF
 
 if($#ARGV<1) {
@@ -38,8 +27,6 @@ my ($fq_orig_dir, $fq_new_dir)=@ARGV;
 
 # get the total fastq file list in the $fq_orig_dir:
 
-#Raw data file format 2x100: TCW1E33-Ast-8hr_R1_001.fastq.gz
-#Raw data file format 2x150: TCW1E33-Ast-8hr_S1_L001_R1_001.fastq.gz
 
 opendir(my $dh, $fq_orig_dir) || die "Can't opendir $fq_orig_dir: $!";
 my @fq_orig_list = grep { /(R1|R2)_001\.fastq\.gz$/ && -f "$fq_orig_dir/$_" } readdir($dh);

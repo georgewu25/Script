@@ -1,5 +1,4 @@
 #!/usr/bin/env perl 
-use Cwd qw(getcwd abs_path);
 use strict;
 my $USAGE= <<EOF;
 
@@ -7,20 +6,6 @@ Usage: perl generate_proj_script_w_config.pl proj_config_file
 command line argument: 
 'proj_config_file' - the configuration file contains all the meta data for the pipeline 
 
-Here is an example for what the format of the config. file shall be: 
-
-[APOE_Mye_Astro_trim_100]
-PROJ_DIR:/projectnb/tcwlab/yshen16/Project/APOE_Mye/Astro_trim_100
-PROJ_RAWDIR:/projectnb/tcwlab/RawRNAseq/APOE_Mye/Astro_trim_100
-PROJ_MAP_SCRIPT:filename_map_all_3.pl
-SGE_TOTAL_TASK:40
-CONFIG_DIR:/projectnb/tcwlab/LabMember/yshen16/Project/scripts/config/APOE_Mye_Astro_trim_100
-DESEQ2_CONF_DIR:deseq_conf
-DESEQ2_CONF_NUM:3
-DESEQ2_CONF_NAME:tcw1,tcw2,tcw1_tcw2
-EOF
-
-#PROJ_ROOT:/projectnb/tcwlab/yshen16/Project
 
 if($#ARGV<0) {
     print "$USAGE\n";
@@ -46,10 +31,7 @@ while(my $line=<CFG>) {
 }
 close CFG;
 
-my $workdir =  getcwd(); #"/restricted/projectnb/ysapp/tmp/Project/scripts/pipe_Astro_trim_100";
 
-
-#my $projdir = "/projectnb/tcwlab/yshen16/Project"; # let's remember the project root for later easy reference
 
 # get parameters: 
 
@@ -81,36 +63,7 @@ my $GSEA_R;
 my $PIPE_SCRIPT;
 
 =pod
-# samle proj config:
-[APOE_Mye_Astro_trim_100]
-PROJ_DIR:/projectnb/tcwlab/yshen16/Project/APOE_Mye/Astro_trim_100
-PROJ_RAWDIR:/projectnb/tcwlab/RawRNAseq/APOE_Mye/Astro_trim_100
-PROJ_MAP_SCRIPT:filename_map_all_3.pl
-SGE_TOTAL_TASK:40
-CONFIG_ROOT:/projectnb/tcwlab/LabMember/yshen16/Project/scripts/config/APOE_Mye_Astro_trim_100
-DESEQ2_CONF_DIR:deseq_conf
-DESEQ2_CONF_NUM:3
-DESEQ2_CONF_NAME:tcw1,tcw2,tcw1_tcw2
-=cut
 
-# these are all config. variables 
-# needed to create the project
-# can be extended as many as needed
-my %str_to_replace= (
-#    PROJECTNAME => "", # for subfolder, create new proj. For example, APOE_Mye/Astro would be APOE_Mye_Astro
-#    PROJECT_RAWDATA_DIR => "",
-#    FILEMAP_SCRIPT => "", 
-#    COMMON_SCRIPT_DIR=>"",
-#    PROJECT_DIR=>"",
-#    CONFIG_ROOT=>"",
-#    DESEQ2_CONF=>"",
-#    DESEQ2_CONF_NUM=>"",
-#    DESEQ2_CONF_LIST=>"",
-    
-);
-
- #note: workdir not always same as the script dir.
-my ($common_script_dir)=abs_path($0)=~/(.*)generate_proj_script_w_config\.pl/i;
 
 foreach my $proj (keys %proj_list) {
     $script_dir = $proj_list{$proj}{PROJ_DIR} . "/scripts/";
