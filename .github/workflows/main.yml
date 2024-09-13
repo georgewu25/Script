@@ -32,13 +32,13 @@ jobs:
       
       - name: Run R Scripts
         run: |
-          for script in Script/*.R; do
+          for script in *.R; do
             Rscript "$script"
           done
 
       - name: Check R code
         run: |
-          for script in Script/*.R; do
+          for script in *.R; do
             Rscript -e "lintr::lint('$script')"
           done
 
