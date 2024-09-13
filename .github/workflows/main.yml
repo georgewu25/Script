@@ -24,11 +24,11 @@ jobs:
 
       - name: Install R packages
         run: |
-          install.packages(c('ggplot2', 'dplyr', 'tidyr', 'reshape2', 'data.table',
+          Rscript -e "install.packages(c('ggplot2', 'dplyr', 'tidyr', 'reshape2', 'data.table',
                               'fgsea', 'ggvenn', 'igraph', 'ggraph', 'stringr',
                               'ComplexHeatmap', 'RColorBrewer', 'pheatmap', 'tibble',
                               'ggplotify', 'ggrepel', 'ggfortify', 'rlang',
-                              'WGCNA', 'DESeq2', 'sva', 'GSA', 'car', 'bestNormalize'))
+                              'WGCNA', 'DESeq2', 'sva', 'GSA', 'car', 'bestNormalize'))"
       
       - name: Run R Scripts
         run: |
