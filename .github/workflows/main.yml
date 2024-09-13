@@ -39,3 +39,7 @@ jobs:
       - name: Check R code validity
         run: |
           Rscript -e 'lintr::lint_package()'
+
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: true
