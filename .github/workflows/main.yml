@@ -32,7 +32,7 @@ jobs:
       
       - name: Run R Scripts
         run: |
-          for script in Scripts/*.R; do
+          for script in /georgewu25/Script/*.R; do
             Rscript "$script"
           done
 
