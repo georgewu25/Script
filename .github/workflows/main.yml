@@ -22,12 +22,20 @@ jobs:
         with:
           r-version: '4.3.1'
 
-      - name: Install R dependencies
+      - name: Install R packages
         run: |
-          R -e "install.packages('remotes')"
-          R -e "remotes::install_deps(dependencies = TRUE)"
+          install.packages(c('ggplot2', 'dplyr', 'tidyr', 'reshape2', 'data.table',
+                              'fgsea', 'ggvenn', 'igraph', 'ggraph', 'stringr',
+                              'ComplexHeatmap', 'RColorBrewer', 'pheatmap', 'tibble',
+                              'ggplotify', 'ggrepel', 'ggfortify', 'rlang',
+                              'WGCNA', 'DESeq2', 'sva', 'GSA', 'car', 'bestNormalize'))
+      
+      - name: Run R Scripts
+        run: |
+          for script in Scripts/*.R; do
+            Rscript "$script"
+          done
 
-      - name: Check R scripts
+      - name: Check R code validity
         run: |
-          Rscript -e "lintr::lint_dir()"  # Lint all R scripts in the repository
-          Rscript -e "testthat::test_dir('tests')"  # Run tests located in the 'tests' directory
+          Rscript -e 'lintr::lint_package()'
