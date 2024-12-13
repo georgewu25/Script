@@ -74,7 +74,7 @@ raw <- Read10X(data.dir = raw_cell_ranger_out, gene.column = 2)
 genes <- rownames(Seurat_SCT@assays$RNA@counts)
 raw <- raw[genes,]
 
-#run SoupX algo (this package is what I ended up using instead of DecontX)
+#run SoupX algo
 sc <- SoupChannel(raw, Seurat_SCT@assays$RNA@counts)
 sc <- setClusters(sc, Seurat_SCT $initial_seurat_clustering_0.5)
 sc <- autoEstCont(sc, doPlot = FALSE)
