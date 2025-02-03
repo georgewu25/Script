@@ -87,3 +87,31 @@ plot_trait_heatmap <- function(cor, p_val, filename) {
 }
 
 plot_trait_heatmap(trait_df, trait_p_df, "PFC 44_vs_33(+34) Module Trait Analysis")
+
+
+res_enr <- read.csv( "/projectnb/tcwlab/LabMember/mwu/Project/Astrocyte_Ab/2X100/output/Post_mortem_brain_validation/PFC_427/PFC_427_scdemon_enr_res.csv")
+ME_of_interest <- unique(res_enr$query.)
+ME_data <- eigengene_df[paste0("X",ME_of_interest)]
+
+metadata <- read.csv("/projectnb/tcwlab/LabMember/mwu/Project/Astrocyte_Ab/2X100/output/Post_mortem_brain_validation/PFC_427/Metadata.csv")
+
+ME_data$Genotype <- metadata$apoe_genotype[match(rownames(ME_data), metadata$read)]
+ME_data$Genotype <- ifelse(ME_data$Genotype == 33, "APOE 33", "APOE 44")
+
+ME_data_Genotype <- ME_data %>%
+  pivot_longer(cols = -Genotype, # Select columns to pivot
+               names_to = "Module",     # New column for former column names
+               values_to = "Eigengene")  
+
+ggplot(ME_data_Genotype, aes(x = Genotype, y = Eigengene, fill = Genotype)) +
+  geom_boxplot() +
+  facet_wrap(~Module, scales = "free_x", strip.position = "top") +
+  stat_compare_means(
+      aes(label = paste0("wilcox p = ", ..p.format..)), 
+      method = "wilcox.test",
+      label.y = max(ME_data_Genotype$Count) + 10 # Adjust position of labels
+    ) +
+  theme_minimal() +
+  theme(strip.background = element_rect(color = "black", fill = NA, linewidth = 0.5),
+        strip.text = element_text(size = 14)) +
+  labs(title = "Post-mortem PFC Module Eigengene Expression", x = "", y = "Expression Level")
