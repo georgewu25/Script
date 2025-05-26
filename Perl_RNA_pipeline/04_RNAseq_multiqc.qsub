@@ -1,36 +1,6 @@
 #!/bin/bash -l
 
-# this file serving as template for creating customized qsub file, 
-# the file name shall be changed properly after customized for job.
-# run 'qsub myjobname.qsub'
-#
-# All lines starting with "#" are comments
-# All lines starting with "#$" are SGE qsub commands
-# 
 
-#  Specify a project to use (Required for BUMC projects).
-#$ -P tcwlab
-
-#  Give this job a name
-#$ -N RNASeq_{PROJECTNAME}_multiqc
-
-#  Join standard output and error to a single file
-#$ -j y #could be 'n' if not to merge error and output
-
-#  Name the log directory where to redirect standard output and error
-#$ -o ../qlog/mqc # make sure qlog_mqc/ exists and is in the working directory, otherwise give the full path.
-
-#  request enough memory:
-#$ -l mem_per_core=4G
-
-# Specify computing resources
-# can be omp, 
-##$ -pe omp 8 
-
-# distributing all the fastq files to 20 tasks
-##$ -t 1-40 
-
-# Now let's keep track of some information just in case anything goes wrong
 echo "=========================================================="
 echo "Starting on : $(date)"
 echo "Running on node : $(hostname)"
@@ -46,19 +16,13 @@ echo "=========================================================="
 module load python3/3.7.9
 module load multiqc/1.10.1
 
-#COMMON_SCRIPT_DIR=/projectnb/tcwlab/yshen16/Project/scripts
 PATH={COMMON_SCRIPT_DIR}:$PATH
 
+DIR={PROJECT_DIR}
 
-# now do the main process: 
-#RAW_DIR=/projectnb/tcwlab/RawRNAseq/IsogenicAPOE/wpoon228 #Raw seq location
-#JULIA_DIR=/projectnb/tcwlab/Project/IsogenicAPOE/  # orig. project location
-YUN_DIR={PROJECT_DIR} #/projectnb/tcwlab/yshen16/Project/IsogenicAPOE/  # yun's working project location
-#cd /projectnb/tcwlab/yshen16/JuliaNote # copied JuliaNote for reference
-
-FASTQ_DIR=${YUN_DIR}/FASTQ/
-MULTIQC_INDIR=${YUN_DIR}/FASTQC
-MULTIQC_OUTDIR=${YUN_DIR}/MULTIQC
+FASTQ_DIR=${DIR}/FASTQ/
+MULTIQC_INDIR=${DIR}/FASTQC
+MULTIQC_OUTDIR=${DIR}/MULTIQC
 mkdir -p $MULTIQC_OUTDIR
 
 total_file_count=`ls $FASTQ_DIR/*.fastq.gz |wc -l` # this is the expected number of qc files to process

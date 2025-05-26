@@ -1,38 +1,6 @@
 #!/bin/bash -l
 
-# this file serving as template for creating customized qsub file, 
-# the file name shall be changed properly after customized for job.
-# run 'qsub myjobname.qsub'
-#
-# All lines starting with "#" are comments
-# All lines starting with "#$" are SGE qsub commands
-# 
 
-#  Specify a project to use (Required for BUMC projects).
-#$ -P tcwlab
-
-#  Give this job a name
-#$ -N aRNASeq_{PROJECTNAME}_align
-
-#  Join standard output and error to a single file
-#$ -j y #could be 'n' if not to merge error and output
-
-#  Name the log directory where to redirect standard output and error
-#$ -o ../qlog/aln # make sure qlog/ exists and is in the working directory, otherwise give the full path.
-
-#  request enough memory:
-# 4G is too small, job got killed
-# try 8G
-#$ -l mem_per_core=8G  
-
-# Specify computing resources
-# can be omp, 
-#$ -pe omp 8 
-
-# distributing all the fastq files to 20 tasks
-#$ -t 1-{SGE_TOTAL_TASK}  #40 
-
-# Now let's keep track of some information just in case anything goes wrong
 echo "=========================================================="
 echo "Starting on : $(date)"
 echo "Running on node : $(hostname)"
@@ -59,14 +27,7 @@ TCWLAB_ROOT=/projectnb/tcwlab/
 # use the newly generated genome index:
 GENOME_DIR=${TCWLAB_ROOT}/RawData/Genome2.7.9a/hg38/
 
-# now do the main process: 
-#RAW_DIR=/projectnb/tcwlab/RawRNAseq/IsogenicAPOE/wpoon228 #Raw seq location
-#JULIA_DIR=/projectnb/tcwlab/Project/IsogenicAPOE/  # orig. project location
-#YUN_DIR={PROJECT_DIR} #/projectnb/tcwlab/yshen16/Project/IsogenicAPOE/  # yun's working project location
-#cd /projectnb/tcwlab/yshen16/JuliaNote # copied JuliaNote for reference
-
 FASTQ_DIR={PROJECT_DIR}/FASTQ/
-#FASTQC_OUTDIR=${YUN_DIR}/FASTQC_OUTPUT
 ALIGN_DIR={PROJECT_DIR}/Alignment
 
 # STAR --help :
